@@ -19,7 +19,7 @@ jobs:
     steps:
       - name: Get current date
         id: date
-        run: echo "$(date +'%Y-%m-%d')"
+        run: echo "$(date +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
       - name: Create Draft Release
         id: create-draft-release
         env: 
