@@ -18,19 +18,24 @@ jobs:
         id: date
         run: |
           echo "date=$(date +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
-      - name: Release name exists?
-        id: count
+      - name: Create Release Name
+        id: name
         env: 
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           RESULT=$(gh release list  --repo="$GITHUB_REPOSITORY" --json name --jq '.[] |.name') 
           NAME="prod-${{ steps.date.outputs.date }}"
-          echo "count=$(echo $RESULT | grep -c \"$NAME\")" >> "$GITHUB_OUTPUT"
+          COUNT=$(echo $RESULT | grep -c \"$NAME\")
+          if [ $COUNT -gt 0 ]; then
+            echo "name=prod-${{ steps.date.outputs.dae }}-$COUNT" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=prod-${{ steps.date.outputs.date }}" >> "$GITHUB_OUTPUT"
+          fi
       - name: Create Draft Release
         id: create-draft-release
         env: 
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG_NAME: prod-${{ steps.date.outputs.date }}${{ steps.count.outputs.count != 0 && '-steps.count.outputs.count' || '' }}
-          RELEASE_NAME: prod-${{ steps.date.outputs.date }}${{ steps.count.outputs.count != 0 && '-steps.count.outputs.count' || '' }}
+          TAG_NAME: ${{ steps.name.outputs.name }}
+          RELEASE_NAME: ${{ steps.name.outputs.name }}
         run: |
           gh release create "$TAG_NAME" --repo="$GITHUB_REPOSITORY" --title="$RELEASE_NAME" --generate-notes --draft
