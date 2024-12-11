@@ -20,9 +20,11 @@ jobs:
           echo "date=$(date +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
       - name: Release name exists?
         id: count
+        env: 
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           RESULT=$(gh release list --json name --jq '.[] |.name') 
-          echo $RESULT | grep -c "prod-2024-12-12" >> "$GITHUB_OUTPUT"
+          echo "count=$($RESULT | grep -c 'prod-${{ steps.date.outputs.date }}')" >> "$GITHUB_OUTPUT"
       - name: Create Draft Release
         id: create-draft-release
         env: 
