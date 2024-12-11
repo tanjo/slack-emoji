@@ -1,9 +1,6 @@
-name: Relase Drafter
+name: Relase Draft
 
 on:
-  # push:
-  #   branches:
-  #     - production
   pull_request:
     branches:
       - production
@@ -20,17 +17,7 @@ jobs:
       - name: Get current date
         id: date
         run: |
-          echo "date=$(date +'%Y-%m-%d')"
           echo "date=$(date +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
-      - name: show GITHUB_REPOSITORY
-        id: show-repo
-        run: echo $GITHUB_REPOSITORY
-      - name: which gh
-        id: which-gh
-        run: which gh
-      - name: gh version
-        id: gh-version
-        run: gh --version
       - name: Create Draft Release
         id: create-draft-release
         env: 
