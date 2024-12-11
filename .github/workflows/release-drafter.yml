@@ -1,0 +1,25 @@
+name: Relase Drafter
+
+on:
+  push:
+    branches:
+      - production
+  pull_request:
+    branches:
+      - production
+    types: [closed]
+
+permissions:
+  contents: read
+
+jobs:
+  update_release_draft:
+    if: github.event.pull_request.merged == true
+    permissions:
+      contents: write
+      pull-request: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: release-drafter/release-drafter@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
