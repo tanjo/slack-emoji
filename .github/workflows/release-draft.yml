@@ -14,7 +14,7 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-22.04
     steps:
-      - name: Get current date
+      - name: Get Current Date
         id: date
         run: |
           echo "date=$(date +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
