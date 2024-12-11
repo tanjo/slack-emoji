@@ -19,7 +19,10 @@ jobs:
     steps:
       - name: Get current date
         id: date
-        run: echo "$(date +'%Y-%m-%d')"
+        run: echo "$(date +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
+      - name: show GITHUB_REPOSITORY
+        id: show-repo
+        run: echo $GITHUB_REPOSITORY
       - name: Create Draft Release
         id: create-draft-release
         env: 
@@ -28,7 +31,7 @@ jobs:
           RELEASE_NAME: prod-${{ steps.date.outputs.date }}
         run: |
           gh release create "$TAG_NAME" \ 
-              --repo "$GITHUB_REPOSITORY" \
+              --repo="$GITHUB_REPOSITORY" \
               --title="$RELEASE_NAME" \
               --generate-notes \
               --draft
