@@ -22,9 +22,9 @@ jobs:
         env: 
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.base_ref##*/ }}
-          run: |
-            gh release create "prod-$tag" \ 
-               --repo "$GITHUB_REPOSITORY" 
-               --title="prod-$tag" \
-               --generate-notes \
-               --draft
+        run: |
+          gh release create "prod-$tag" \ 
+              --repo "$GITHUB_REPOSITORY" \
+              --title="prod-$tag" \
+              --generate-notes \
+              --draft
