@@ -24,7 +24,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           RESULT=$(gh release list  --repo="$GITHUB_REPOSITORY" --json name --jq '.[] |.name') 
-          echo "count=$($RESULT | grep -c 'prod-${{ steps.date.outputs.date }}')" >> "$GITHUB_OUTPUT"
+          NAME="prod-${{ steps.date.outputs.date }}"
+          echo "count=$(echo $RESULT | grep -c \"$NAME\")" >> "$GITHUB_OUTPUT"
       - name: Create Draft Release
         id: create-draft-release
         env: 
