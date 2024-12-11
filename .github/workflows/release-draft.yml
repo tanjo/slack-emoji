@@ -25,6 +25,9 @@ jobs:
       - name: show GITHUB_REPOSITORY
         id: show-repo
         run: echo $GITHUB_REPOSITORY
+      - name: which gh
+        id: which-gh
+        run: which gh
       - name: Create Draft Release
         id: create-draft-release
         env: 
