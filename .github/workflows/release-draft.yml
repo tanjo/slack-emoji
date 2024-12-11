@@ -15,9 +15,9 @@ permissions:
 jobs:
   start:
     if: github.event.pull_request.merged == true
+    runs-on: ubuntu-22.04
     steps:
-      - name: Release pushed tag
-        runs-on: ubuntu-22.04
+      - name: Create Draft Release
         id: create-draft-release
         env: 
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
