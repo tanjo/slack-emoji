@@ -23,11 +23,14 @@ jobs:
         env: 
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          RESULT=$(gh release list  --repo="$GITHUB_REPOSITORY" --json name --jq '.[] |.name') 
+          RESULT=$(gh release list  --repo="$GITHUB_REPOSITORY" --json name --jq '.[] |.name')
+          echo $RESULT
           NAME="prod-${{ steps.date.outputs.date }}"
+          echo $NAME
           COUNT=$(echo $RESULT | grep -c $NAME)
+          echo $COUNT
           if [ $COUNT -gt 0 ]; then
-            echo "name=prod-${{ steps.date.outputs.dae }}-$COUNT" >> "$GITHUB_OUTPUT"
+            echo "name=prod-${{ steps.date.outputs.date }}-$COUNT" >> "$GITHUB_OUTPUT"
           else
             echo "name=prod-${{ steps.date.outputs.date }}" >> "$GITHUB_OUTPUT"
           fi
