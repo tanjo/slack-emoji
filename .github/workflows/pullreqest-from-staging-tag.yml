@@ -19,7 +19,8 @@ jobs:
       - name: Get Date from Tag name
         id: name
         run: |
-          echo "name=$(echo ${${GITHUB_REF##*stg-}//-/})" >> "$GITHUB_OUTPUT"
+          TMP="${GITHUB_REF##*stg-}"
+          echo "name=$(echo ${TMP//-/})" >> "$GITHUB_OUTPUT"
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
