@@ -37,4 +37,4 @@ jobs:
           TAG_NAME: ${{ steps.name.outputs.name }}
           RELEASE_NAME: ${{ steps.name.outputs.name }}
         run: |
-          gh release create "$TAG_NAME" --repo="$GITHUB_REPOSITORY" --title="$RELEASE_NAME" --generate-notes --draft
+          gh release create "$TAG_NAME" --target "production" --repo="$GITHUB_REPOSITORY" --title="$RELEASE_NAME" --generate-notes --draft

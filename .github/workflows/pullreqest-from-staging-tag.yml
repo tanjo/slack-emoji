@@ -1,0 +1,48 @@
+name: Create Pull Request from Staging Tag
+
+on:
+  push:
+    tags:
+    - 'stg-*'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  BASE_BRANCH: production
+
+jobs:
+  start:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Get Date from Tag name
+        id: name
+        run: |
+          TMP="${GITHUB_REF##*stg-}"
+          echo "name=$(echo ${TMP//-/})" >> "$GITHUB_OUTPUT"
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+      - name: Check Pull Request
+        id: check
+        run: |
+          echo "exists=$(gh pr list --state=open --base=$BASE_BRANCH --head=release/${{ steps.name.outputs.name }} --repo=$GITHUB_REPOSITORY --json 'id' --jq '.[] | length')" >> "$GITHUB_OUTPUT"
+      - name: Create Release Branch
+        id: branch
+        if: steps.check.outputs.exists == ''
+        run: |
+          BRANCH="release/${{ steps.name.outputs.name }}"
+          git checkout -b "$BRANCH"
+          git push origin "$BRANCH"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+      - name: Create Pull Request
+        id: pr
+        if: steps.check.outputs.exists == ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEAD_BRANCH: ${{ steps.branch.outputs.branch }}
+        run: |
+          gh pr create --base="$BASE_BRANCH" --head="$HEAD_BRANCH" --fill-verbose --repo="$GITHUB_REPOSITORY"
