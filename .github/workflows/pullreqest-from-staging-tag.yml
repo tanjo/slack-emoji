@@ -16,6 +16,11 @@ jobs:
         id: name
         run: |
           echo "name=$(echo ${GITHUB_REF##*stg-})" >> "$GITHUB_OUTPUT"
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        widh:
+          fetch-depth: 
+          ref: ${{ github.ref }}
       - name: Create Release Branch
         id: branch
         run: |
