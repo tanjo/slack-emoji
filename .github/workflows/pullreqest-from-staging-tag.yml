@@ -19,10 +19,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 
+          fetch-depth: 0
           ref: ${{ github.ref }}
+      - name: Check Pull Request
+        id: check
+        run: |
+          echo "exists=$(gh pr list --state=open --base=production --head=release/2024-12-12 --repo=$GITHUB_REPOSITORY --json 'id' --jq '.[] | length')" >> "$GITHUB_OUTPUT"
       - name: Create Release Branch
         id: branch
+        if: steps.check.outputs.exists == ''
         run: |
           BRANCH="release/${{ steps.name.outputs.name }}"
           git checkout -b "$BRANCH"
@@ -30,6 +35,7 @@ jobs:
           echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
       - name: Create Pull Request
         id: pr
+        if: steps.check.outputs.exists == ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HEAD_BRANCH: ${{ steps.branch.outputs.branch }}
