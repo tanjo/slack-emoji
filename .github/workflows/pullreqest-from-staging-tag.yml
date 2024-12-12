@@ -28,7 +28,7 @@ jobs:
       - name: Check Pull Request
         id: check
         run: |
-          echo "exists=$(gh pr list --state=open --base=$BASE_BRANCH --head=release/2024-12-12 --repo=$GITHUB_REPOSITORY --json 'id' --jq '.[] | length')" >> "$GITHUB_OUTPUT"
+          echo "exists=$(gh pr list --state=open --base=$BASE_BRANCH --head=release/${{ steps.name.outputs.name }} --repo=$GITHUB_REPOSITORY --json 'id' --jq '.[] | length')" >> "$GITHUB_OUTPUT"
       - name: Create Release Branch
         id: branch
         if: steps.check.outputs.exists == ''
