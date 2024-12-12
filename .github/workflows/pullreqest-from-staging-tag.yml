@@ -1,0 +1,32 @@
+name: Create Pull Request from Staging Tag
+
+on:
+  push:
+    tags:
+    - 'stg-*'
+
+permissions:
+  contents: write
+
+jobs:
+  start:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Get Date from Tag name
+        id: name
+        run: |
+          echo "name=$(echo ${GITHUB_REF##*stg-})" >> "$GITHUB_OUTPUT"
+      - name: Create Release Branch
+        id: branch
+        run: |
+          BRANCH="release-${{ steps.name.outputs.name }}"
+          git checkout -b "$BRANCH"
+          git push origin "$BRANCH"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+      - name: Create Pull Request
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ steps.branch.outputs.branch }}
+        run: |
+          gh pr create --base production --head "$BRANCH" --fill-verbose --repo="$GITHUB_REPOSITORY"
