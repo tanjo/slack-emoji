@@ -24,7 +24,7 @@ jobs:
       - name: Create Release Branch
         id: branch
         run: |
-          BRANCH="release-${{ steps.name.outputs.name }}"
+          BRANCH="release/${{ steps.name.outputs.name }}"
           git checkout -b "$BRANCH"
           git push origin "$BRANCH"
           echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
@@ -32,6 +32,6 @@ jobs:
         id: pr
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: ${{ steps.branch.outputs.branch }}
+          HEAD_BRANCH: ${{ steps.branch.outputs.branch }}
         run: |
-          gh pr create --base="production" --head="$BRANCH" --fill-verbose --repo="$GITHUB_REPOSITORY"
+          gh pr create --base="production" --head="$HEAD_BRANCH" --fill-verbose --repo="$GITHUB_REPOSITORY"
