@@ -34,4 +34,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: ${{ steps.branch.outputs.branch }}
         run: |
-          gh pr create --base production --head "$BRANCH" --fill-verbose --repo="$GITHUB_REPOSITORY"
+          gh pr create --base="production" --head="$BRANCH" --fill-verbose --repo="$GITHUB_REPOSITORY"
