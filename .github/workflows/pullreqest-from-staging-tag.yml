@@ -47,9 +47,7 @@ jobs:
           TITLE: "Release/${{ steps.name.outputs.name }}"
         run: |
           BODY=""
-          COMMITS=$(git log --first-parent --oneline origin/$BASE_BRANCH..$HEAD_BRANCH)
-          COMMITS_TEXT=$(echo $COMMITS | cut -d " " -f2-)
-          echo $COMMITS_TEXT | while read line; do
+          echo $(git log --first-parent --oneline origin/$BASE_BRANCH..$HEAD_BRANCH | cut -d " " -f2-) | while read line; do
             if [[ $line == "Merge pull request #"* ]]; then
               edit_text=$(echo $line | sed -e "s/Merge pull request #\([0-9]*\) from .*/#\1/")
               BODY=$(echo "$BODY\n- $edit_text")
@@ -60,8 +58,6 @@ jobs:
           if [[ -n "$BODY" ]]; then
             BODY=$(echo "### リリース内容\n$BODY")
           fi
-          echo "---------"
-          echo $COMMITS
           echo "---------"
           echo $BODY
           echo "---------"
