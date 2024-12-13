@@ -46,17 +46,16 @@ jobs:
           HEAD_BRANCH: ${{ steps.branch.outputs.branch }}
           TITLE: "Release/${{ steps.name.outputs.name }}"
         run: |
+          tmpfile=$(mktemp)
+          git log --first-parent --oneline origin/$BASE_BRANCH..$HEAD_BRANCH > $tmpfile
           BODY=""
-          echo $(git log --first-parent --oneline origin/$BASE_BRANCH..$HEAD_BRANCH) | while read line; do
-            text = $(echo $line | cut -d " " -f2-)
-            echo "========= line ========="
-            echo $text
-            echo "========================="
-            if [[ $text == "Merge pull request #"* ]]; then
-              edit_text=$(echo $text | sed -e "s/Merge pull request #\([0-9]*\) from .*/#\1/")
+          for i in `cat $tmpfile`; do
+            TEXT=$(echo $i | cut -d " " -f2-)
+            if [[ $TEXT == "Merge pull request #"* ]]; then
+              edit_text=$(echo $TEXT | sed -e "s/Merge pull request #\([0-9]*\) from .*/#\1/")
               BODY=$(echo "$BODY\n- $edit_text")
             else
-             BODY=$(echo "$BODY\n- $text")
+             BODY=$(echo "$BODY\n- $TEXT")
             fi
           done
           if [[ -n "$BODY" ]]; then
