@@ -48,15 +48,15 @@ jobs:
         run: |
           BODY=""
           echo $(git log --first-parent --oneline origin/$BASE_BRANCH..$HEAD_BRANCH) | while read line; do
-            line = $(echo $line | cut -d " " -f2-)
+            text = $(echo $line | cut -d " " -f2-)
             echo "========= line ========="
-            echo $line
+            echo $text
             echo "========================="
-            if [[ $line == "Merge pull request #"* ]]; then
-              edit_text=$(echo $line | sed -e "s/Merge pull request #\([0-9]*\) from .*/#\1/")
+            if [[ $text == "Merge pull request #"* ]]; then
+              edit_text=$(echo $text | sed -e "s/Merge pull request #\([0-9]*\) from .*/#\1/")
               BODY=$(echo "$BODY\n- $edit_text")
             else
-             BODY=$(echo "$BODY\n- $line")
+             BODY=$(echo "$BODY\n- $text")
             fi
           done
           if [[ -n "$BODY" ]]; then
