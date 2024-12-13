@@ -47,8 +47,9 @@ jobs:
           TITLE: "Release/${{ steps.name.outputs.name }}"
         run: |
           BODY=""
-          echo $(git log --first-parent --oneline origin/$BASE_BRANCH..$HEAD_BRANCH | cut -d " " -f2-) | while read line; do
-            echo "========= $line ========="
+          echo $(git log --first-parent --oneline origin/$BASE_BRANCH..$HEAD_BRANCH) | while read line; do
+            line = $(echo $line | cut -d " " -f2-)
+            echo "========= line ========="
             echo $line
             echo "========================="
             if [[ $line == "Merge pull request #"* ]]; then
