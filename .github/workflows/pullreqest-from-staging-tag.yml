@@ -46,4 +46,4 @@ jobs:
           HEAD_BRANCH: ${{ steps.branch.outputs.branch }}
           TITLE: "Release/${{ steps.name.outputs.name }}"
         run: |
-          gh pr create --base="$BASE_BRANCH" --head="$HEAD_BRANCH" --title="$TITLE" --repo="$GITHUB_REPOSITORY"
+          gh pr create --base="$BASE_BRANCH" --head="$HEAD_BRANCH" --title="$TITLE" --fill --repo="$GITHUB_REPOSITORY"
