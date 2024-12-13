@@ -38,12 +38,6 @@ jobs:
           git checkout -b "$BRANCH"
           git push origin "$BRANCH"
           echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
-      - name: Check Repository
-        run: |
-          git fetch
-          git log --first-parent --oneline origin/$BASE_BRANCH
-          git log --first-parent --oneline $HEAD_BRANCH
-          git log --first-parent --oneline origin/$HEAD_BRANCH
       - name: Create Pull Request
         id: pr
         if: steps.check.outputs.exists == ''
@@ -53,7 +47,7 @@ jobs:
           TITLE: "Release/${{ steps.name.outputs.name }}"
         run: |
           BODY=""
-          COMMITS=$(git log --first-parent --oneline origin/$BASE_BRANCH..origin/$HEAD_BRANCH)
+          COMMITS=$(git log --first-parent --oneline origin/$BASE_BRANCH..$HEAD_BRANCH)
           COMMITS_TEXT=$(echo $COMMITS | cut -d " " -f2-)
           echo $COMMITS_TEXT | while read line; do
             if [[ $line == "Merge pull request #"* ]]; then
