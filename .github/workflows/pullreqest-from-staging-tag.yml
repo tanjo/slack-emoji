@@ -60,4 +60,7 @@ jobs:
           if [[ -n "$BODY" ]]; then
             BODY=$(echo "### リリース内容\n$BODY")
           fi
+          echo "---------"
+          echo $BODY
+          echo "---------"
           gh pr create --base="$BASE_BRANCH" --head="$HEAD_BRANCH" --title="$TITLE" --body="$BODY" --repo="$GITHUB_REPOSITORY"
