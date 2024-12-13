@@ -34,6 +34,7 @@ function update() {
     <h1>Slack Emoji</h1>
     <button v-if="font !== 'Reggae One'" @click="font = 'Reggae One' ; update()">Reggae One</button>
     <button v-if="font !== 'Yusei Magic'" @click="font = 'Yusei Magic' ; update()">Yusei Magic</button>
+    <button v-if="font !== 'Zen Maru Gothic'" @click="font = 'Zen Maru Gothic' ; update()">Zen Maru Gothic</button>
     <div class="card">
         <textarea id="text" @input="update"></textarea>
     </div>
@@ -48,6 +49,7 @@ function update() {
 <style lang="css" scoped>
 @import url('https://fonts.googleapis.com/css2?family=Reggae+One&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Reggae+One&family=Yusei+Magic&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Reggae+One&family=Yusei+Magic&family=Zen+Maru+Gothic&display=swap');
 canvas {
     border: 1px solid black;
 }
