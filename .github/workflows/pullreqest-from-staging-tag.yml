@@ -46,7 +46,6 @@ jobs:
           HEAD_BRANCH: ${{ steps.branch.outputs.branch }}
           TITLE: "Release/${{ steps.name.outputs.name }}"
         run: |
-          git fetch
           BODY=""
           COMMITS=$(git log --first-parent --oneline origin/$BASE_BRANCH..origin/$HEAD_BRANCH)
           COMMITS_TEXT=$(echo $COMMITS | cut -d " " -f2-)
