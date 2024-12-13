@@ -50,7 +50,9 @@ jobs:
           git log --first-parent --oneline origin/$BASE_BRANCH..$HEAD_BRANCH > $tmpfile
           BODY=""
           for i in `cat $tmpfile`; do
+            echo "i=$i"
             TEXT=$(echo $i | cut -d " " -f2-)
+            echo "TEXT=$TEXT"
             if [[ $TEXT == "Merge pull request #"* ]]; then
               edit_text=$(echo $TEXT | sed -e "s/Merge pull request #\([0-9]*\) from .*/#\1/")
               BODY=$(echo "$BODY\n- $edit_text")
