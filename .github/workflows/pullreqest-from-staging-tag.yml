@@ -46,6 +46,7 @@ jobs:
           HEAD_BRANCH: ${{ steps.branch.outputs.branch }}
           TITLE: "Release/${{ steps.name.outputs.name }}"
         run: |
-          MERGES=$(git log --merges --oneline origin/$BASE_BRANCH..origin/$HEAD_BRANCH)
-          BODY=$(echo $MERGES | cut -d " " -f2-)
-          gh pr create --base="$BASE_BRANCH" --head="$HEAD_BRANCH" --title="$TITLE" --body="リリース内容\r\n$BODY" --repo="$GITHUB_REPOSITORY"
+          MERGES=$(git log --first-parent --oneline origin/$BASE_BRANCH..origin/$HEAD_BRANCH)
+          MERGE_BODY=$(echo $MERGES | cut -d " " -f2- | sed "s/^/- /g")
+          BODY=$(echo "### リリース内容\n$MERGE_BODY")
+          gh pr create --base="$BASE_BRANCH" --head="$HEAD_BRANCH" --title="$TITLE" --body="$BODY" --repo="$GITHUB_REPOSITORY"
