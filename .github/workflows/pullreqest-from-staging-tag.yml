@@ -46,6 +46,7 @@ jobs:
           HEAD_BRANCH: ${{ steps.branch.outputs.branch }}
           TITLE: "Release/${{ steps.name.outputs.name }}"
         run: |
+          BODY=""
           COMMITS=$(git log --first-parent --oneline origin/$BASE_BRANCH..origin/$HEAD_BRANCH)
           COMMITS_TEXT=$(echo $COMMITS | cut -d " " -f2-)
           for text in $COMMITS_TEXT; do
@@ -54,7 +55,8 @@ jobs:
             fi
             BODY=$(echo "$BODY\n- $text")
           done
-          if [ -m "$BODY" ]; then
+          if [[ -n "$BODY" ]]; then
             BODY=$(echo "### リリース内容\n$BODY")
           fi
+          echo $BODY
           gh pr create --base="$BASE_BRANCH" --head="$HEAD_BRANCH" --title="$TITLE" --body="$BODY" --repo="$GITHUB_REPOSITORY"
