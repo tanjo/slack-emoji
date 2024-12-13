@@ -40,7 +40,9 @@ jobs:
           echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
       - name: Check Repository
         run: |
+          git fetch
           git log --first-parent --oneline origin/$BASE_BRANCH
+          git log --first-parent --oneline $HEAD_BRANCH
           git log --first-parent --oneline origin/$HEAD_BRANCH
       - name: Create Pull Request
         id: pr
