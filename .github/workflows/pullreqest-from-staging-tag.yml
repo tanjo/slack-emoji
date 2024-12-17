@@ -46,6 +46,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HEAD_BRANCH: ${{ steps.branch.outputs.branch }}
           TITLE: "Release/${{ steps.name.outputs.name }}"
+          BODY_FILE: "bodyfile.txt"
         run: |
           IFS=$'\n'
           tmpfile=$(mktemp)
@@ -55,15 +56,13 @@ jobs:
             TEXT=$(echo $i | cut -d " " -f2-)
             if [[ $TEXT == "Merge pull request #"* ]]; then
               edit_text=$(echo $TEXT | sed -e "s/Merge pull request #\([0-9]*\) from .*/#\1/")
-              BODY=$(echo "$BODY\\n- $edit_text")
+              BODY=$(echo "$BODY\r- $edit_text")
             else
-             BODY=$(echo "$BODY\\n- $TEXT")
+             BODY=$(echo "$BODY\r- $TEXT")
             fi
           done
           if [[ -n "$BODY" ]]; then
-            BODY=$(echo "### リリース内容\\n$BODY")
+            BODY=$(echo "### リリース内容$BODY")
           fi
-          echo "---------"
-          echo $BODY
-          echo "---------"
-          gh pr create --base="$BASE_BRANCH" --head="$HEAD_BRANCH" --title="$TITLE" --body="$BODY" --repo="$GITHUB_REPOSITORY"
+          echo $BODY > "$BODY_FILE"
+          gh pr create --base="$BASE_BRANCH" --head="$HEAD_BRANCH" --title="$TITLE" --body-file="$BODY_FILE" --repo="$GITHUB_REPOSITORY"
