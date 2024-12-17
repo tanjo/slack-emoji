@@ -36,6 +36,7 @@ function update() {
     <button v-if="font !== 'Yusei Magic'" @click="font = 'Yusei Magic' ; update()">Yusei Magic</button>
     <button v-if="font !== 'Zen Maru Gothic'" @click="font = 'Zen Maru Gothic' ; update()">Zen Maru Gothic</button>
     <button v-if="font !== 'Potta One'" @click="font = 'Potta One' ; update()">Potta One</button>
+    <button v-if="font !== 'Yuji Boku'" @click="font = 'Yuji Boku' ; update()">Yuji Boku</button>
     <div class="card">
         <textarea id="text" @input="update"></textarea>
     </div>
@@ -52,6 +53,7 @@ function update() {
 @import url('https://fonts.googleapis.com/css2?family=Reggae+One&family=Yusei+Magic&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Reggae+One&family=Yusei+Magic&family=Zen+Maru+Gothic&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Potta+One&family=Reggae+One&family=Yusei+Magic&family=Zen+Maru+Gothic&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Yuji+Boku&display=swap');
 canvas {
     border: 1px solid black;
 }
