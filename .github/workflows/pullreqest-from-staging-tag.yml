@@ -41,11 +41,28 @@ jobs:
       - name: Create Pull Request
         id: pr
         if: steps.check.outputs.exists == ''
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HEAD_BRANCH: ${{ steps.branch.outputs.branch }}
           TITLE: "Release/${{ steps.name.outputs.name }}"
+          BODY_FILE: "bodyfile.txt"
         run: |
-          MERGES=$(git log --merges --oneline origin/$BASE_BRANCH..origin/$HEAD_BRANCH)
-          BODY=$(echo $MERGES | cut -d " " -f2-)
-          gh pr create --base="$BASE_BRANCH" --head="$HEAD_BRANCH" --title="$TITLE" --body="リリース内容\r\n$BODY" --repo="$GITHUB_REPOSITORY"
+          IFS=$'\n'
+          tmpfile=$(mktemp)
+          git log --first-parent --oneline origin/$BASE_BRANCH..$HEAD_BRANCH > $tmpfile
+          BODY=""
+          for i in `cat $tmpfile`; do
+            TEXT=$(echo $i | cut -d " " -f2-)
+            if [[ $TEXT == "Merge pull request #"* ]]; then
+              edit_text=$(echo $TEXT | sed -e "s/Merge pull request #\([0-9]*\) from .*/#\1/")
+              BODY=$(echo "$BODY\n- $edit_text")
+            else
+             BODY=$(echo "$BODY\n- $TEXT")
+            fi
+          done
+          if [[ -n "$BODY" ]]; then
+            BODY=$(echo "### リリース内容\n$BODY")
+          fi
+          printf $BODY > "$BODY_FILE"
+          gh pr create --base="$BASE_BRANCH" --head="$HEAD_BRANCH" --title="$TITLE" --body-file="$BODY_FILE" --repo="$GITHUB_REPOSITORY"
