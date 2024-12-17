@@ -47,6 +47,7 @@ jobs:
           HEAD_BRANCH: ${{ steps.branch.outputs.branch }}
           TITLE: "Release/${{ steps.name.outputs.name }}"
         run: |
+          IFS=$'\n'
           tmpfile=$(mktemp)
           git log --first-parent --oneline origin/$BASE_BRANCH..$HEAD_BRANCH > $tmpfile
           BODY=""
