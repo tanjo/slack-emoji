@@ -56,13 +56,13 @@ jobs:
             TEXT=$(echo $i | cut -d " " -f2-)
             if [[ $TEXT == "Merge pull request #"* ]]; then
               edit_text=$(echo $TEXT | sed -e "s/Merge pull request #\([0-9]*\) from .*/#\1/")
-              BODY=$(echo "$BODY\r- $edit_text")
+              BODY=$(echo "$BODY\n- $edit_text")
             else
-             BODY=$(echo "$BODY\r- $TEXT")
+             BODY=$(echo "$BODY\n- $TEXT")
             fi
           done
           if [[ -n "$BODY" ]]; then
-            BODY=$(echo "### リリース内容$BODY")
+            BODY=$(echo "### リリース内容\n$BODY")
           fi
-          echo $BODY > "$BODY_FILE"
+          printf $BODY > "$BODY_FILE"
           gh pr create --base="$BASE_BRANCH" --head="$HEAD_BRANCH" --title="$TITLE" --body-file="$BODY_FILE" --repo="$GITHUB_REPOSITORY"
