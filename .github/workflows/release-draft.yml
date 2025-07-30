@@ -38,3 +38,7 @@ jobs:
           RELEASE_NAME: ${{ steps.name.outputs.name }}
         run: |
           gh release create "$TAG_NAME" --target "production" --repo="$GITHUB_REPOSITORY" --title="$RELEASE_NAME" --generate-notes --draft
+      - name: Release List
+        id: release-list
+        run: |
+          gh release list --repo="$GITHUB_REPOSITORY" --json isDraft,name,createdAt -q '[.[] | select(.isDraft)] | sort_by(.createdAt)'
