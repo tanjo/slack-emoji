@@ -43,16 +43,18 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          RELEASE_LIST=$(gh release list --repo="$GITHUB_REPOSITORY" --json isDraft,name,createdAt -q '[.[] | select(.isDraft)] | sort_by(.createdAt)[:-3]')
+          RELEASE_LIST=$(gh release list --repo="$GITHUB_REPOSITORY" --json isDraft,name,tagName,createdAt -q '[.[] | select(.isDraft)] | sort_by(.createdAt)[:-3]')
           echo "exclusion_release_list=$RELEASE_LIST" >> "$GITHUB_OUTPUT"
       - name: Exclude Releases
         id: exclude-releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           EXCLUSION_LIST="${{ steps.release-list.outputs.exclusion_release_list }}"
           if [ -n "$EXCLUSION_LIST" ]; then
-            echo "Excluding releases: $EXCLUSION_LIST"
-            echo "exclusion_releases=$EXCLUSION_LIST" >> "$GITHUB_OUTPUT"
+            for release in $(echo "$EXCLUSION_LIST" | jq -r '.[].tagName'); do
+              gh release delete --yes --repo="$GITHUB_REPOSITORY" "$release"
+            done
           else
             echo "No releases to exclude."
-            echo "exclusion_releases=" >> "$GITHUB_OUTPUT"
           fi
