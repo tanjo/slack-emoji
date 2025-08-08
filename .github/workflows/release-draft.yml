@@ -26,12 +26,8 @@ jobs:
           NAME="prod-${{ steps.date.outputs.date }}"
           COUNT=$(gh release list --repo="$GITHUB_REPOSITORY" --json name --jq "map(select(.name | contains(\"$NAME\"))) | length")
           if [ $COUNT -gt 0 ]; then
-            TMP_NAME="$NAME-$COUNT"
-            IS_EXIST=$(gh release view "$TMP_NAME" --repo="$GITHUB_REPOSITORY" --json name --jq '.name' 2>/dev/null || echo "")
-            while [ -n "$IS_EXIST" ]; do
+            while gh release view "$NAME-$COUNT" --repo="$GITHUB_REPOSITORY" --json name --jq '.name' &>/dev/null; do
               COUNT=$((COUNT + 1))
-              TMP_NAME="$NAME-$COUNT"
-              IS_EXIST=$(gh release view "$TMP_NAME" --repo="$GITHUB_REPOSITORY" --json name --jq '.name' 2>/dev/null || echo "")
             done
             echo "name=prod-${{ steps.date.outputs.date }}-$COUNT" >> "$GITHUB_OUTPUT"
           else
