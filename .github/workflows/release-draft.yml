@@ -49,9 +49,9 @@ jobs:
         run: |
             # Calculate exclusion threshold in ISO8601
             if date -v -1d > /dev/null 2>&1; then
-            THRESHOLD=$(date -v -"${EXCLUSION_DAY}"d -u +"%Y-%m-%dT%H:%M:%SZ")
+              THRESHOLD=$(date -v -"${EXCLUSION_DAY}"d -u +"%Y-%m-%dT%H:%M:%SZ")
             else
-            THRESHOLD=$(date -d "$EXCLUSION_DAY days ago" -u +"%Y-%m-%dT%H:%M:%SZ")
+              THRESHOLD=$(date -d "$EXCLUSION_DAY days ago" -u +"%Y-%m-%dT%H:%M:%SZ")
             fi
             echo "Exclusion threshold: $THRESHOLD"
 
@@ -60,10 +60,19 @@ jobs:
             jq -r '[.[] | select(.isDraft and .createdAt < "'$THRESHOLD'")] | sort_by(.createdAt)[:-1] | .[].tagName')
 
             if [ -n "$RELEASES" ]; then
-            for tag in $RELEASES; do
-              gh release delete --yes --repo="$GITHUB_REPOSITORY" "$tag"
-              echo "Deleted release: $tag"
-            done
+              for tag in $RELEASES; do
+                # name と tagName が同じ場合、削除する
+                VIEW=$(gh release view "$tag" --repo="$GITHUB_REPOSITORY" --json name,tagName)
+                NAME=$(echo "$VIEW" | jq -r '.name')
+                TAG_NAME=$(echo "$VIEW" | jq -r '.tagName')
+                if [ "$NAME" = "$TAG_NAME" ]; then
+                  gh release delete --yes --repo="$GITHUB_REPOSITORY" "$tag"
+                  echo "Deleted release: $tag"
+                else
+                  echo "Skipping release: $tag (name and tagName do not match)"
+                  continue
+                fi
+              done
             else
-            echo "No old draft releases to delete."
+              echo "No old draft releases to delete."
             fi
