@@ -38,43 +38,18 @@ jobs:
           RELEASE_NAME: ${{ steps.name.outputs.name }}
         run: |
           gh release create "$TAG_NAME" --target "production" --repo="$GITHUB_REPOSITORY" --title="$RELEASE_NAME" --generate-notes --draft
-      - name: Release List
-        id: release-list
+      - name: Exclude Releases
+        id: exclude-releases
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           EXCLUSION_COUNT: 3
         run: |
           JQ_QUERY="[.[] | select(.isDraft)] | sort_by(.createdAt)[:-${{ env.EXCLUSION_COUNT }}]"
           RELEASE_LIST=$(gh release list --repo="$GITHUB_REPOSITORY" --json isDraft,name,tagName,createdAt -q "$JQ_QUERY")
-          echo "exclusion_release_list=$RELEASE_LIST" >> "$GITHUB_OUTPUT"
-      - name: Exclude Releases
-        id: exclude-releases
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          EXCLUSION_LIST="${{ steps.release-list.outputs.exclusion_release_list }}"
-          if [ -n "$EXCLUSION_LIST" ]; then
-            for release in $(echo "$EXCLUSION_LIST" | jq -r '.[].tagName'); do
+          if [ -n "$RELEASE_LIST" ]; then
+            for release in $(echo "$RELEASE_LIST" | jq -r '.[].tagName'); do
               gh release delete --yes --repo="$GITHUB_REPOSITORY" "$release"
             done
           else
             echo "No releases to exclude."
           fi
-      # - name: Exclude Release Branches
-      #   id: exclude-branches
-      #   env:
-      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   run: |
-      #     LS_REMOTE_HEADS=$(git ls-remote --heads | jq -R 'split("\t") | .[1] | gsub("refs/heads/"; "")' | jq -s .)
-      #     EXCLUSION_BRANCHES_JSON=$(git branch -r --format='{"name": "%(refname:short)", "is_current": "%(if) %(HEAD) %(then)true%(else)false%(end)", "commit": "%(objectname)", "date": "%(committerdate:iso)"}' | jq -s .)
-      #     EXCLUSION_BRANCHES=$(echo $EXCLUSION_BRANCHES_JSON | jq '.[] | select(.name | startswith("origin/release/")) | select(.name | inside($LS_REMOTE_HEADS)) | select(.date < (now - 3 * 24 * 60 * 60 | todate)) | .name')
-      #     if [ -z "$EXCLUSION_BRANCHES" ]; then
-      #       echo "No branches to exclude."
-      #       exit 0
-      #     fi
-      #     for branch in $EXCLUSION_BRANCHES; do
-      #       if [ -n "$branch" ]; then
-      #         # git push origin --delete "${branch#origin/}" > /dev/null 2>&1
-      #         echo "Excluding branch: $branch"
-      #       fi
-      #     done
