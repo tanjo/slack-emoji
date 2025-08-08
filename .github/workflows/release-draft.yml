@@ -50,6 +50,7 @@ jobs:
             for release in $(echo "$RELEASE_LIST" | jq -r '.[].tagName'); do
               gh release delete --yes --repo="$GITHUB_REPOSITORY" "$release"
             done
+            echo "Excluded the last $EXCLUSION_COUNT draft releases."
           else
             echo "No releases to exclude."
           fi
