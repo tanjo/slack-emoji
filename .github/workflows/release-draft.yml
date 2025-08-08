@@ -42,8 +42,10 @@ jobs:
         id: release-list
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EXCLUSION_COUNT: 3
         run: |
-          RELEASE_LIST=$(gh release list --repo="$GITHUB_REPOSITORY" --json isDraft,name,tagName,createdAt -q '[.[] | select(.isDraft)] | sort_by(.createdAt)[:-3]')
+          JQ_QUERY="[.[] | select(.isDraft)] | sort_by(.createdAt)[:-${{ env.EXCLUSION_COUNT }}]"
+          RELEASE_LIST=$(gh release list --repo="$GITHUB_REPOSITORY" --json isDraft,name,tagName,createdAt -q "$JQ_QUERY")
           echo "exclusion_release_list=$RELEASE_LIST" >> "$GITHUB_OUTPUT"
       - name: Exclude Releases
         id: exclude-releases
@@ -58,3 +60,21 @@ jobs:
           else
             echo "No releases to exclude."
           fi
+      # - name: Excldude Release Branches
+      #   id: exclude-branches
+      #   env:
+      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     LS_REMOTE_HEADS=$(git ls-remote --heads | jq -R 'split("\t") | .[1] | gsub("refs/heads/"; "")' | jq -s .)
+      #     EXCLUSION_BRANCHES_JSON=$(git branch -r --format='{"name": "%(refname:short)", "is_current": "%(if) %(HEAD) %(then)true%(else)false%(end)", "commit": "%(objectname)", "date": "%(committerdate:iso)"}' | jq -s .)
+      #     EXCLUSION_BRANCHES=$(echo $EXCLUSION_BRANCHES_JSON | jq '.[] | select(.name | startswith("origin/release/")) | select(.name | inside($LS_REMOTE_HEADS)) | select(.date < (now - 3 * 24 * 60 * 60 | todate)) | .name')
+      #     if [ -z "$EXCLUSION_BRANCHES" ]; then
+      #       echo "No branches to exclude."
+      #       exit 0
+      #     fi
+      #     for branch in $EXCLUSION_BRANCHES; do
+      #       if [ -n "$branch" ]; then
+      #         # git push origin --delete "${branch#origin/}" > /dev/null 2>&1
+      #         echo "Excluding branch: $branch"
+      #       fi
+      #     done
