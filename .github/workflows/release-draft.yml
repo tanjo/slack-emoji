@@ -44,7 +44,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           EXCLUSION_COUNT: 3
         run: |
-          JQ_QUERY="[.[] | select(.isDraft)] | sort_by(.createdAt)[:-${{ env.EXCLUSION_COUNT }}]"
+          JQ_QUERY="[.[] | select(.isDraft)] | sort_by(.createdAt)[:-$EXCLUSION_COUNT]"
           RELEASE_LIST=$(gh release list --repo="$GITHUB_REPOSITORY" --json isDraft,name,tagName,createdAt -q "$JQ_QUERY")
           if [ -n "$RELEASE_LIST" ]; then
             for release in $(echo "$RELEASE_LIST" | jq -r '.[].tagName'); do
