@@ -60,7 +60,7 @@ jobs:
           else
             echo "No releases to exclude."
           fi
-      # - name: Excldude Release Branches
+      # - name: Exclude Release Branches
       #   id: exclude-branches
       #   env:
       #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
