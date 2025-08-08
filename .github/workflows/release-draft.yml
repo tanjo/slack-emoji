@@ -26,6 +26,9 @@ jobs:
           NAME="prod-${{ steps.date.outputs.date }}"
           COUNT=$(gh release list --repo="$GITHUB_REPOSITORY" --json name --jq "map(select(.name | contains(\"$NAME\"))) | length")
           if [ $COUNT -gt 0 ]; then
+            while gh release view "$NAME-$COUNT" --repo="$GITHUB_REPOSITORY" --json name --jq '.name' &>/dev/null; do
+              COUNT=$((COUNT + 1))
+            done
             echo "name=prod-${{ steps.date.outputs.date }}-$COUNT" >> "$GITHUB_OUTPUT"
           else
             echo "name=prod-${{ steps.date.outputs.date }}" >> "$GITHUB_OUTPUT"
@@ -42,14 +45,19 @@ jobs:
         id: exclude-releases
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          EXCLUSION_COUNT: 3
+          EXCLUSION_DAY: 3
+        # JQ_QUERY は ドラフトで createdAt がEXCLUSION_DAY日超えているものを抽出する Mac と Linux での互換性を考慮
         run: |
-          JQ_QUERY="[.[] | select(.isDraft)] | sort_by(.createdAt)[:-$EXCLUSION_COUNT]"
+          if date -v -1d > /dev/null 2>&1; then
+            EXCLUSION_DAY_AGO_ISO8601=$(date -v -$EXCLUSION_DAYd -u +"%Y-%m-%dT%H:%M:%SZ")
+          else
+            EXCLUSION_DAY_AGO_ISO8601=$(date -d "$EXCLUSION_DAY day ago" -u +"%Y-%m-%dT%H:%M:%SZ")
+          fi
+          JQ_QUERY="[.[] | select(.isDraft and .createdAt < \"$EXCLUSION_DAY_AGO_ISO8601\")] | sort_by(.createdAt)[:-1]"
           RELEASE_LIST=$(gh release list --repo="$GITHUB_REPOSITORY" --json isDraft,name,tagName,createdAt -q "$JQ_QUERY")
           if [ -n "$RELEASE_LIST" ]; then
             for release in $(echo "$RELEASE_LIST" | jq -r '.[].tagName'); do
-              RESULT=$(gh release delete --yes --repo="$GITHUB_REPOSITORY" "$release")
-              echo "$RESULT"
+              gh release delete --yes --repo="$GITHUB_REPOSITORY" "$release"
             done
           else
             echo "No releases to exclude."
