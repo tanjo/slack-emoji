@@ -26,6 +26,13 @@ jobs:
           NAME="prod-${{ steps.date.outputs.date }}"
           COUNT=$(gh release list --repo="$GITHUB_REPOSITORY" --json name --jq "map(select(.name | contains(\"$NAME\"))) | length")
           if [ $COUNT -gt 0 ]; then
+            TMP_NAME="$NAME-$COUNT"
+            IS_EXIST=$(gh release view "$TMP_NAME" --repo="$GITHUB_REPOSITORY" --json name --jq '.name' 2>/dev/null || echo "")
+            while [ -n "$IS_EXIST" ]; do
+              COUNT=$((COUNT + 1))
+              TMP_NAME="$NAME-$COUNT"
+              IS_EXIST=$(gh release view "$TMP_NAME" --repo="$GITHUB_REPOSITORY" --json name --jq '.name' 2>/dev/null || echo "")
+            done
             echo "name=prod-${{ steps.date.outputs.date }}-$COUNT" >> "$GITHUB_OUTPUT"
           else
             echo "name=prod-${{ steps.date.outputs.date }}" >> "$GITHUB_OUTPUT"
@@ -43,7 +50,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           EXCLUSION_DAY: 3
-        #　JQ_QUERY は ドラフトで createdAt がEXCLUSION_DAY日超えているものを抽出する Mac と Linux での互換性を考慮
+        # JQ_QUERY は ドラフトで createdAt がEXCLUSION_DAY日超えているものを抽出する Mac と Linux での互換性を考慮
         run: |
           if date -v -1d > /dev/null 2>&1; then
             EXCLUSION_DAY_AGO_ISO8601=$(date -v -$EXCLUSION_DAYd -u +"%Y-%m-%dT%H:%M:%SZ")
