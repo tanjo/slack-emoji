@@ -45,13 +45,13 @@ jobs:
         id: exclude-releases
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          EXCLUSION_DAY: 30
+          EXCLUSION_DAY: 7
         run: |
             # Calculate exclusion threshold in ISO8601
             if date -v -1d > /dev/null 2>&1; then
-            THRESHOLD=$(date -v -"${EXCLUSION_DAY}"M -u +"%Y-%m-%dT%H:%M:%SZ")
+            THRESHOLD=$(date -v -"${EXCLUSION_DAY}"d -u +"%Y-%m-%dT%H:%M:%SZ")
             else
-            THRESHOLD=$(date -d "$EXCLUSION_DAY minute ago" -u +"%Y-%m-%dT%H:%M:%SZ")
+            THRESHOLD=$(date -d "$EXCLUSION_DAY days ago" -u +"%Y-%m-%dT%H:%M:%SZ")
             fi
             echo "Exclusion threshold: $THRESHOLD"
 
