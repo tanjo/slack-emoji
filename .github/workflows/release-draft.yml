@@ -48,9 +48,9 @@ jobs:
           RELEASE_LIST=$(gh release list --repo="$GITHUB_REPOSITORY" --json isDraft,name,tagName,createdAt -q "$JQ_QUERY")
           if [ -n "$RELEASE_LIST" ]; then
             for release in $(echo "$RELEASE_LIST" | jq -r '.[].tagName'); do
-              gh release delete --yes --repo="$GITHUB_REPOSITORY" "$release"
+              RESULT=$(gh release delete --yes --repo="$GITHUB_REPOSITORY" "$release")
+              echo "$RESULT"
             done
-            echo "Excluded the last $EXCLUSION_COUNT draft releases."
           else
             echo "No releases to exclude."
           fi
